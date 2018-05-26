@@ -1,0 +1,67 @@
+---
+title: "Quantitative genetic data simulation"
+author: "Timothée Bonnet"
+date: "26 May 2018"
+output:
+   html_document:
+    toc: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here we show how to simulate simple data for quantitative genetic analysis. Computer simulations can be very useful to test the properties of statistical analysis prior to applying them to real data, or for theoretical resarch.
+
+One can also re-use simulated data, such as the gryphon data contained in the package pedantics (which we will also use for phenotypic simulations later on).
+
+```{r packages, message=FALSE}
+library(pedantics)
+data(gryphons)
+
+head(gryphons)
+```
+
+The first three columns contain the pedigree itself: id is the focal individual identifier, dam is the mother, sire is the the father.
+
+Below we extract these three columns, make sure the rows are ordered in a consistent way with the function fixPedigree, and draw the pedigree (each line represents a parent-offspring link, starting with the founder individuals at the top of the graph).
+```{r}
+pedigree<-fixPedigree(gryphons[,1:3])
+drawPedigree(Ped = pedigree)
+```
+
+
+## Simulating pedigrees
+
+Few packages have functions devoted to creating pedigrees, perhaps because it is both simple and often more appropriate to code a simulation process that includes the processes relevant to a particular analysis (for instance, you may need special mating systems, varying population size, a specific reproductive skew, immigration...).
+
+Below we simulate a pedigree assuming constant population size, non-overlaping generations, random mating, constant sex-ratio...
+
+```{r}
+nb_females <- 50
+nb_males <- 50
+
+nb_generations <- 10
+
+ped <- data.frame(id=c(1:(nb_females+nb_males)), dam=NA, sire=NA, sex=c(rep(0, times=nb_females), rep(1,times=nb_males)), cohort=0)
+nped <- ped
+for(i in 1:nb_generations)
+{
+  nped$cohort <- i
+  nped$id <- (max(ped$id)+1):(max(ped$id)+nb_females+nb_males)
+  nped$sex <- c(rep(0, times=nb_females), rep(1,times=nb_males))
+  nped$dam <- sample(x = ped$id[ped$sex==0 & ped$cohort== i-1], size = nb_females+nb_males, replace = TRUE)
+  nped$sire <- sample(x = ped$id[ped$sex==1 & ped$cohort== i-1], size = nb_females+nb_males, replace = TRUE)
+  ped <- rbind(ped, nped)
+}
+drawPedigree(Ped = ped[,1:3], cohorts = ped$cohort, sex = abs(1-ped$sex))
+```
+
+
+## Simulating phenotypes and breeding values
+
+
+```{r phenotypes}
+
+```

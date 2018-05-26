@@ -61,7 +61,13 @@ drawPedigree(Ped = ped[,1:3], cohorts = ped$cohort, sex = abs(1-ped$sex))
 
 ## Simulating phenotypes and breeding values
 
+Simulating breeding values and phenotypes following a given pedigree is a bit more demanding, but the function phensim() in the package pedantics makes it easy. 
+Below, we simulate a phenotypic trait with an additive genetic variance of 4, and a total phenotypic variance of 6+4=10 (so, the heritability is 40%).
 
 ```{r phenotypes}
-
+res <- phensim(pedigree = ped[,1:3], traits = 1, randomA = 4, randomE = 6, returnAllEffects = TRUE)
 ```
+
+Because we asked the function to return all effect, the function returns two objects. The object phenotypes contains the phenotypic values only, what we would observe in nature. The object allEffects contains phenotypic values, environmental values, and breeding values, as well as the pedigree.
+
+
